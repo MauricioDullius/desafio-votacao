@@ -41,6 +41,8 @@ public class MemberDTO {
         this.active = active;
     }
 
+    public MemberDTO() {}
+
     public MemberDTO(Long id, String name, String cpf, boolean active) {
         this.id = id;
         this.name = name;
