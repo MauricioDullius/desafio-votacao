@@ -1,31 +1,63 @@
 package br.com.db.system.votingsystem.v1.model;
 
+import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Agenda {
+@Entity
+@Table
+public class Agenda implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 500)
     private String description;
 
+    @Column
     private LocalDateTime start;
+
+    @Column
     private LocalDateTime end;
 
+    @Column(nullable = false)
     private int state;
-    List<Vote> votes;
 
-    public Agenda(Long id, String description, LocalDateTime start, LocalDateTime end, int state, List<Vote> votes) {
-        this.id = id;
-        this.description = description;
-        this.start = start;
-        this.end = end;
-        this.state = state;
-        this.votes = votes;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assembly_id", nullable = false)
+    private Assembly assembly;
+
+    @OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Vote> votes =  new ArrayList<>();
+
+
+    public Agenda() {}
 
     public Long getId() {
         return id;
+    }
+
+    public Assembly getAssembly() {
+        return assembly;
+    }
+
+    public void setAssembly(Assembly assembly) {
+        this.assembly = assembly;
+    }
+
+    public List<Vote> getVotes() {
+        return votes;
+    }
+
+    public void setVotes(List<Vote> votes) {
+        this.votes = votes;
     }
 
     public void setId(Long id) {
@@ -62,25 +94,5 @@ public class Agenda {
 
     public void setState(int state) {
         this.state = state;
-    }
-
-    public List<Vote> getVotes() {
-        return votes;
-    }
-
-    public void setVotes(List<Vote> votes) {
-        this.votes = votes;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Agenda agenda = (Agenda) o;
-        return state == agenda.state && Objects.equals(id, agenda.id) && Objects.equals(description, agenda.description) && Objects.equals(start, agenda.start) && Objects.equals(end, agenda.end) && Objects.equals(votes, agenda.votes);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, description, start, end, state, votes);
     }
 }

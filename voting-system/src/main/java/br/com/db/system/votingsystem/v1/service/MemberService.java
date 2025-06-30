@@ -1,7 +1,7 @@
 package br.com.db.system.votingsystem.v1.service;
 
 import br.com.db.system.votingsystem.v1.dto.MemberDTO;
-import static br.com.db.system.votingsystem.v1.mapper.ObjectMapper.parseObject;
+import br.com.db.system.votingsystem.v1.mapper.MemberMapper;
 import br.com.db.system.votingsystem.v1.model.Member;
 import br.com.db.system.votingsystem.v1.repository.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,50 +14,62 @@ import java.util.List;
 public class MemberService {
 
     @Autowired
-    MemberRepository repository;
+    private MemberRepository repository;
 
-    public List<Member> findAll(){
+    @Autowired
+    private MemberMapper mapper;
 
-        return repository.findAll();
+    public List<MemberDTO> findAll() {
+        return mapper.toDTOList(repository.findAll());
     }
 
-    public MemberDTO findById(Long id){
-        Member member = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Member not found with id: " + id));
-        return parseObject(member,MemberDTO.class);
+    public MemberDTO findById(Long id) {
+        Member member = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Member not found with id: " + id));
+        return mapper.toDTO(member);
+    }
+
+    public MemberDTO findByCpf(String cpf) {
+        Member member = repository.findMemberByCpf(cpf);
+        if (member == null) {
+            throw new EntityNotFoundException("Member not found with CPF: " + cpf);
+        }
+        return mapper.toDTO(member);
     }
 
     public MemberDTO create(MemberDTO memberDTO) throws Exception {
-        Member member = parseObject(memberDTO, Member.class);
+        if (repository.findMemberByCpf(memberDTO.getCpf()) != null) {
+            throw new Exception("Member with CPF: " + memberDTO.getCpf() + " already exists");
+        }
 
-        if( repository.findMemberByCpf(member.getCpf()) != null )
-            throw new Exception("Member with id: " + member.getCpf() + " already exists");
-        return parseObject(repository.save(member), MemberDTO.class);
+        Member member = mapper.toEntity(memberDTO);
+        return mapper.toDTO(repository.save(member));
     }
 
-    public MemberDTO update(MemberDTO memberDTO){
+    public MemberDTO update(MemberDTO memberDTO) {
+        Member member = repository.findById(memberDTO.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Member not found with id: " + memberDTO.getId()));
 
-        Member member = repository.findById(memberDTO.getId()).orElseThrow(() -> new EntityNotFoundException("Member not found with id: " + memberDTO.getId()));
         member.setName(memberDTO.getName());
         member.setCpf(memberDTO.getCpf());
         member.setActive(memberDTO.isActive());
-        return parseObject(repository.save(member), MemberDTO.class);
+
+        return mapper.toDTO(repository.save(member));
     }
 
-    public void delete(MemberDTO memberDTO){
-        repository.delete(parseObject(memberDTO, Member.class));
-    }
-
-    public MemberDTO findByCpf(String cpf){
-        repository.findMemberByCpf(cpf);
-        return parseObject(repository.findMemberByCpf(cpf), MemberDTO.class);
-    }
-
-    public void deleteByCpf(String cpf){
-        Member member = repository.findMemberByCpf(cpf);
+    public void delete(MemberDTO memberDTO) {
+        Member member = mapper.toEntity(memberDTO);
         repository.delete(member);
     }
 
-    public void deleteById(Long id){
+    public void deleteByCpf(String cpf) {
+        Member member = repository.findMemberByCpf(cpf);
+        if (member != null) {
+            repository.delete(member);
+        }
+    }
+
+    public void deleteById(Long id) {
         repository.deleteById(id);
     }
 }

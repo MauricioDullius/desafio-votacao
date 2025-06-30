@@ -1,6 +1,8 @@
 package br.com.db.system.votingsystem.v1.dto;
 
+import br.com.db.system.votingsystem.v1.model.Assembly;
 import br.com.db.system.votingsystem.v1.model.Vote;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,19 +13,20 @@ public class AgendaDTO {
     private Long id;
     private String description;
 
+    //aplicar data e hora formatada (mudar para string o dto) não setar a hora de inicio, apenas o tempo de duração da pauta
     private LocalDateTime start;
     private LocalDateTime end;
+    private int state; //converter em enum
+    private Long assembly;
 
-    private int state;
-    List<Vote> votes;
+    public AgendaDTO() {}
 
-    public AgendaDTO(Long id, String description, LocalDateTime start, LocalDateTime end, int state, List<Vote> votes) {
-        this.id = id;
-        this.description = description;
-        this.start = start;
-        this.end = end;
-        this.state = state;
-        this.votes = votes;
+    public Long getAssembly() {
+        return assembly;
+    }
+
+    public void setAssembly(Long assembly) {
+        this.assembly = assembly;
     }
 
     public Long getId() {
@@ -64,25 +67,5 @@ public class AgendaDTO {
 
     public void setState(int state) {
         this.state = state;
-    }
-
-    public List<Vote> getVotes() {
-        return votes;
-    }
-
-    public void setVotes(List<Vote> votes) {
-        this.votes = votes;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        AgendaDTO agenda = (AgendaDTO) o;
-        return state == agenda.state && Objects.equals(id, agenda.id) && Objects.equals(description, agenda.description) && Objects.equals(start, agenda.start) && Objects.equals(end, agenda.end) && Objects.equals(votes, agenda.votes);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, description, start, end, state, votes);
     }
 }

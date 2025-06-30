@@ -24,16 +24,7 @@ public class Member implements Serializable {
     @Column(nullable = false)
     private boolean active;
 
-    public Member() {
-
-    }
-
-    public Member(Long id, String name, String cpf, boolean active) {
-        this.id = id;
-        this.name = name;
-        this.cpf = cpf;
-        this.active = active;
-    }
+    public Member() {}
 
     public Long getId() {
         return id;

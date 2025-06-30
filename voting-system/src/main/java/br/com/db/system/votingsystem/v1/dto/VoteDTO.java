@@ -1,27 +1,21 @@
 package br.com.db.system.votingsystem.v1.dto;
 
-import br.com.db.system.votingsystem.v1.model.Agenda;
-import br.com.db.system.votingsystem.v1.model.Member;
-
 import java.util.Objects;
 
 public class VoteDTO {
 
     private Long id;
-    private Agenda agenda;
-    private Member member;
-    private int  vote;
+    private Long agendaId;
+    private String memberCpf;
+    private int vote;
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        VoteDTO vote1 = (VoteDTO) o;
-        return vote == vote1.vote && Objects.equals(id, vote1.id) && Objects.equals(agenda, vote1.agenda) && Objects.equals(member, vote1.member);
-    }
+    public VoteDTO() {}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, agenda, member, vote);
+    public VoteDTO(Long id, Long agendaId, String memberCpf, int vote) {
+        this.id = id;
+        this.agendaId = agendaId;
+        this.memberCpf = memberCpf;
+        this.vote = vote;
     }
 
     public Long getId() {
@@ -32,20 +26,20 @@ public class VoteDTO {
         this.id = id;
     }
 
-    public Agenda getAgenda() {
-        return agenda;
+    public Long getAgendaId() {
+        return agendaId;
     }
 
-    public void setAgenda(Agenda agenda) {
-        this.agenda = agenda;
+    public void setAgendaId(Long agendaId) {
+        this.agendaId = agendaId;
     }
 
-    public Member getMember() {
-        return member;
+    public String getMemberCpf() {
+        return memberCpf;
     }
 
-    public void setMember(Member member) {
-        this.member = member;
+    public void setMemberCpf(String memberCpf) {
+        this.memberCpf = memberCpf;
     }
 
     public int getVote() {
@@ -54,5 +48,21 @@ public class VoteDTO {
 
     public void setVote(int vote) {
         this.vote = vote;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VoteDTO voteDTO = (VoteDTO) o;
+        return vote == voteDTO.vote &&
+                Objects.equals(id, voteDTO.id) &&
+                Objects.equals(agendaId, voteDTO.agendaId) &&
+                Objects.equals(memberCpf, voteDTO.memberCpf);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, agendaId, memberCpf, vote);
     }
 }

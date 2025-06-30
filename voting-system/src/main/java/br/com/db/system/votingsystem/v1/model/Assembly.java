@@ -1,28 +1,43 @@
 package br.com.db.system.votingsystem.v1.model;
 
+import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-public class Assembly {
+@Entity
+@Table
+public class Assembly implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 50)
+    private String name;
+
+    @Column(nullable = false)
     private LocalDateTime start;
+
+    @Column(nullable = false)
     private LocalDateTime end;
 
+    @OneToMany(mappedBy = "assembly", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Agenda> agendas;
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Assembly assembly = (Assembly) o;
-        return Objects.equals(id, assembly.id) && Objects.equals(start, assembly.start) && Objects.equals(end, assembly.end) && Objects.equals(agendas, assembly.agendas);
+    public List<Agenda> getAgendas() {
+        return agendas;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, start, end, agendas);
+    public void setAgendas(List<Agenda> agendas) {
+        this.agendas = agendas;
     }
+
+    public Assembly() {}
 
     public Long getId() {
         return id;
@@ -48,18 +63,11 @@ public class Assembly {
         this.end = end;
     }
 
-    public List<Agenda> getAgendas() {
-        return agendas;
+    public String getName() {
+        return name;
     }
 
-    public void setAgendas(List<Agenda> agendas) {
-        this.agendas = agendas;
-    }
-
-    public Assembly(Long id, LocalDateTime start, LocalDateTime end, List<Agenda> agendas) {
-        this.id = id;
-        this.start = start;
-        this.end = end;
-        this.agendas = agendas;
+    public void setName(String name) {
+        this.name = name;
     }
 }

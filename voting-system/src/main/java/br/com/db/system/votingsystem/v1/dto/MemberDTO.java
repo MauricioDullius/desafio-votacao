@@ -43,13 +43,6 @@ public class MemberDTO {
 
     public MemberDTO() {}
 
-    public MemberDTO(Long id, String name, String cpf, boolean active) {
-        this.id = id;
-        this.name = name;
-        this.cpf = cpf;
-        this.active = active;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
