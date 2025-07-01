@@ -9,29 +9,30 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/assembly/v1")
+@RequestMapping("/api/assembly/v1")
 public class AssemblyController {
 
     @Autowired
-    AssemblyService service;
+    private AssemblyService service;
 
     @GetMapping
-    public ResponseEntity<List<AssemblyDTO>> findAll(){
+    public ResponseEntity<List<AssemblyDTO>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @GetMapping(value = "/{id}")
-    public AssemblyDTO findById(@PathVariable(value = "id") Long id){
-        return service.findById(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<AssemblyDTO> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public AssemblyDTO create(@RequestBody  AssemblyDTO assemblyDTO) throws Exception {
-        return service.create(assemblyDTO);
+    public ResponseEntity<AssemblyDTO> create(@RequestBody AssemblyDTO assemblyDTO) throws Exception {
+        AssemblyDTO created = service.create(assemblyDTO);
+        return ResponseEntity.status(201).body(created);
     }
 
     @PutMapping
-    public AssemblyDTO update(@RequestBody  AssemblyDTO assemblyDTO){
-        return service.update(assemblyDTO);
+    public ResponseEntity<AssemblyDTO> update(@RequestBody AssemblyDTO assemblyDTO) {
+        return ResponseEntity.ok(service.update(assemblyDTO));
     }
 }

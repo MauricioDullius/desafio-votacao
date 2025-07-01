@@ -9,34 +9,36 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/vote/v1")
+@RequestMapping("/api/vote/v1")
 public class VoteController {
 
     @Autowired
     private VoteService service;
 
     @GetMapping
-    public ResponseEntity<List<VoteDTO>> findAll(){
+    public ResponseEntity<List<VoteDTO>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @GetMapping(value = "/{id}")
-    public VoteDTO findById(@PathVariable(value = "id") Long id){
-        return service.findById(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<VoteDTO> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public VoteDTO create(@RequestBody  VoteDTO voteDTO) throws Exception {
-        return service.create(voteDTO);
+    public ResponseEntity<VoteDTO> create(@RequestBody VoteDTO voteDTO) throws Exception {
+        VoteDTO created = service.create(voteDTO);
+        return ResponseEntity.status(201).body(created);
     }
 
     @PutMapping
-    public VoteDTO update(@RequestBody  VoteDTO voteDTO) throws Exception {
-        return service.update(voteDTO);
+    public ResponseEntity<VoteDTO> update(@RequestBody VoteDTO voteDTO) throws Exception {
+        return ResponseEntity.ok(service.update(voteDTO));
     }
 
-    @DeleteMapping(value = "/{id}")
-    public void delete(@PathVariable(value = "id") Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

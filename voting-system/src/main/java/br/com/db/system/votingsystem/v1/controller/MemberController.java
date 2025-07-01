@@ -9,47 +9,47 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/member/v1")
+@RequestMapping("/api/member/v1")
 public class MemberController {
 
     @Autowired
     private MemberService service;
 
-    @Autowired
-
     @GetMapping
-    public ResponseEntity<List<MemberDTO>> findAll(){
+    public ResponseEntity<List<MemberDTO>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @GetMapping(value = "/{id}")
-    public MemberDTO findById(@PathVariable(value = "id") Long id){
-        return service.findById(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<MemberDTO> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public MemberDTO create(@RequestBody  MemberDTO memberDTO) throws Exception {
-        return service.create(memberDTO);
+    public ResponseEntity<MemberDTO> create(@RequestBody MemberDTO memberDTO) throws Exception {
+        MemberDTO created = service.create(memberDTO);
+        return ResponseEntity.status(201).body(created);
     }
 
     @PutMapping
-    public MemberDTO update(@RequestBody  MemberDTO memberDTO){
-        return service.update(memberDTO);
+    public ResponseEntity<MemberDTO> update(@RequestBody MemberDTO memberDTO) {
+        return ResponseEntity.ok(service.update(memberDTO));
     }
 
-    @GetMapping(value = "findMemberByCpf/{cpf}")
-    public MemberDTO findByCpf(@PathVariable(value = "cpf") String cpf){
-        return service.findByCpf(cpf);
+    @GetMapping("/findMemberByCpf/{cpf}")
+    public ResponseEntity<MemberDTO> findByCpf(@PathVariable String cpf) {
+        return ResponseEntity.ok(service.findByCpf(cpf));
     }
 
-    @DeleteMapping(value = "/{id}")
-    public void delete(@PathVariable(value = "id") Long id){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
-    public void deleteByCpf(@RequestParam String cpf){
+    public ResponseEntity<Void> deleteByCpf(@RequestParam String cpf) {
         service.deleteByCpf(cpf);
+        return ResponseEntity.noContent().build();
     }
-
 }
