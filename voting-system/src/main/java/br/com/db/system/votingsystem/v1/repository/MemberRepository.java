@@ -1,7 +1,6 @@
 package br.com.db.system.votingsystem.v1.repository;
 
-import br.com.db.system.votingsystem.v1.model.Member;
-import org.springframework.data.domain.Pageable;
+import br.com.db.system.votingsystem.v1.model.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

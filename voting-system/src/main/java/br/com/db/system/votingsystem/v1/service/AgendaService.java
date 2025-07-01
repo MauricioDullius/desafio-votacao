@@ -2,13 +2,16 @@ package br.com.db.system.votingsystem.v1.service;
 
 import br.com.db.system.votingsystem.v1.dto.AgendaDTO;
 import br.com.db.system.votingsystem.v1.mapper.AgendaMapper;
-import br.com.db.system.votingsystem.v1.mapper.AssemblyResolver;
-import br.com.db.system.votingsystem.v1.model.Agenda;
+import br.com.db.system.votingsystem.v1.model.entity.Agenda;
+import br.com.db.system.votingsystem.v1.model.entity.Assembly;
+import br.com.db.system.votingsystem.v1.model.enums.AgendaState;
 import br.com.db.system.votingsystem.v1.repository.AgendaRepository;
+import br.com.db.system.votingsystem.v1.repository.AssemblyRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,54 +21,69 @@ public class AgendaService {
     private AgendaRepository repository;
 
     @Autowired
-    private AgendaMapper agendaMapper;
+    private AgendaMapper mapper;
 
     @Autowired
-    private AssemblyResolver assemblyResolver;
+    private AssemblyRepository assemblyRepository;
 
     public List<AgendaDTO> findAll() {
         return repository.findAll()
                 .stream()
-                .map(agenda -> agendaMapper.toDTO(agenda))
+                .map(mapper::toDTO)
                 .toList();
     }
 
     public AgendaDTO findById(Long id) {
         Agenda agenda = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Agenda not found with id: " + id));
-
-        return agendaMapper.toDTO(agenda);
+        return mapper.toDTO(agenda);
     }
 
-    public AgendaDTO create(AgendaDTO dto) {
-        Agenda agenda = agendaMapper.toEntity(dto, assemblyResolver);
+    public AgendaDTO create(AgendaDTO dto) throws Exception {
+        Assembly assembly = assemblyRepository.findById(dto.getAssemblyId())
+                .orElseThrow(() -> new EntityNotFoundException("Assembly not found with id: " + dto.getAssemblyId()));
+
+        Agenda agenda = mapper.toEntity(dto);
+        agenda.setAssembly(assembly);
+        agenda.setStart( dto.getStart() == null ? LocalDateTime.now() : dto.getStart() );
+        agenda.setEnd( dto.getEnd() == null ? agenda.getStart().plusMinutes(1) : dto.getEnd() );
+
+        validateData(agenda.getStart(), agenda.getEnd());
+
         agenda = repository.save(agenda);
-        return agendaMapper.toDTO(agenda);
+
+        return mapper.toDTO(agenda);
     }
 
     public AgendaDTO update(AgendaDTO dto) throws Exception {
-        Long agendaId = dto.getId();
-
-        Agenda agenda = repository.findById(agendaId)
-                .orElseThrow(() -> new EntityNotFoundException("Agenda not found with id: " + agendaId));
-
-        if (dto.getAssembly() == null) {
-            throw new Exception("Assembly ID must be provided");
+        if (dto.getAssemblyId() == null) {
+            throw new IllegalArgumentException("Assembly ID must be provided");
         }
+
+        Agenda agenda = repository.findById(dto.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Agenda not found with id: " + dto.getId()));
+
+        Assembly assembly = assemblyRepository.findById(dto.getAssemblyId())
+                .orElseThrow(() -> new EntityNotFoundException("Assembly not found with id: " + dto.getAssemblyId()));
 
         agenda.setDescription(dto.getDescription());
         agenda.setStart(dto.getStart());
         agenda.setEnd(dto.getEnd());
-        agenda.setState(dto.getState());
+        agenda.setAssembly(assembly);
 
-        agenda.setAssembly(assemblyResolver.resolve(dto.getAssembly()));
-
+        validateData(agenda.getStart(), agenda.getEnd());
         agenda = repository.save(agenda);
 
-        return agendaMapper.toDTO(agenda);
+        return mapper.toDTO(agenda);
     }
 
     public void deleteById(Long id) {
         repository.deleteById(id);
+    }
+
+    private void validateData(LocalDateTime start, LocalDateTime end) throws Exception {
+        if( end.isBefore(start) && start.isBefore(LocalDateTime.now()) ) {
+            throw new Exception("Start date cannot be later than the end date or earlier than the current date.");
+        }
     }
 }

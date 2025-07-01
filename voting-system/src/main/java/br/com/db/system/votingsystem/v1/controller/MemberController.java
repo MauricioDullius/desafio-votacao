@@ -1,8 +1,6 @@
 package br.com.db.system.votingsystem.v1.controller;
 
 import br.com.db.system.votingsystem.v1.dto.MemberDTO;
-import br.com.db.system.votingsystem.v1.mapper.MemberMapper;
-import br.com.db.system.votingsystem.v1.model.Member;
 import br.com.db.system.votingsystem.v1.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

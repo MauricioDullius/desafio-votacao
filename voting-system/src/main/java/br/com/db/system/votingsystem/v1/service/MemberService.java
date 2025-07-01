@@ -2,7 +2,7 @@ package br.com.db.system.votingsystem.v1.service;
 
 import br.com.db.system.votingsystem.v1.dto.MemberDTO;
 import br.com.db.system.votingsystem.v1.mapper.MemberMapper;
-import br.com.db.system.votingsystem.v1.model.Member;
+import br.com.db.system.votingsystem.v1.model.entity.Member;
 import br.com.db.system.votingsystem.v1.repository.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;

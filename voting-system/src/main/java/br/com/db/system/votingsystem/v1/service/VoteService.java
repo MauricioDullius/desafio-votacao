@@ -2,10 +2,11 @@ package br.com.db.system.votingsystem.v1.service;
 
 import br.com.db.system.votingsystem.v1.dto.VoteDTO;
 import br.com.db.system.votingsystem.v1.mapper.VoteMapper;
-import br.com.db.system.votingsystem.v1.mapper.VoteResolver;
-import br.com.db.system.votingsystem.v1.model.Agenda;
-import br.com.db.system.votingsystem.v1.model.Member;
-import br.com.db.system.votingsystem.v1.model.Vote;
+import br.com.db.system.votingsystem.v1.model.entity.Agenda;
+import br.com.db.system.votingsystem.v1.model.entity.Member;
+import br.com.db.system.votingsystem.v1.model.entity.Vote;
+import br.com.db.system.votingsystem.v1.repository.AgendaRepository;
+import br.com.db.system.votingsystem.v1.repository.MemberRepository;
 import br.com.db.system.votingsystem.v1.repository.VoteRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -24,7 +25,10 @@ public class VoteService {
     private VoteMapper voteMapper;
 
     @Autowired
-    private VoteResolver voteResolver;
+    private AgendaRepository agendaRepository;
+
+    @Autowired
+    private MemberRepository memberRepository;
 
     public List<VoteDTO> findAll() {
         return voteMapper.toDTOList(repository.findAll());
@@ -44,22 +48,35 @@ public class VoteService {
         Vote vote = repository.findById(dto.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Vote not found with id: " + dto.getId()));
 
+        Member member = memberRepository.findMemberByCpf(dto.getMemberCpf());
+        if (member == null) {
+            throw new EntityNotFoundException("Member not found with CPF: " + dto.getMemberCpf());
+        }
+
         vote.setVote(dto.getVote());
-        vote.setMember(voteResolver.resolveMember(dto.getMemberCpf()));
+        vote.setMember(member);
 
         return voteMapper.toDTO(repository.save(vote));
     }
 
     public VoteDTO create(VoteDTO dto) {
-        Member member = voteResolver.resolveMember(dto.getMemberCpf());
-        Agenda agenda = voteResolver.resolveAgenda(dto.getAgendaId());
+        Member member = memberRepository.findMemberByCpf(dto.getMemberCpf());
+        if (member == null) {
+            throw new EntityNotFoundException("Member not found with CPF: " + dto.getMemberCpf());
+        }
+
+        Agenda agenda = agendaRepository.findById(dto.getAgendaId())
+                .orElseThrow(() -> new EntityNotFoundException("Agenda not found with id: " + dto.getAgendaId()));
 
         boolean hasVoted = repository.existsByMemberIdAndAgendaId(member.getId(), agenda.getId());
         if (hasVoted) {
             throw new RuntimeException("This member has already voted on this agenda");
         }
 
-        Vote vote = voteMapper.toEntity(dto, voteResolver);
+        Vote vote = voteMapper.toEntity(dto);
+        vote.setAgenda(agenda);
+        vote.setMember(member);
+
         return voteMapper.toDTO(repository.save(vote));
     }
 

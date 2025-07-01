@@ -1,7 +1,7 @@
 package br.com.db.system.votingsystem.v1.mapper;
 
 import br.com.db.system.votingsystem.v1.dto.MemberDTO;
-import br.com.db.system.votingsystem.v1.model.Member;
+import br.com.db.system.votingsystem.v1.model.entity.Member;
 import org.mapstruct.Mapper;
 
 import java.util.List;

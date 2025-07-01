@@ -2,7 +2,7 @@ package br.com.db.system.votingsystem.v1.service;
 
 import br.com.db.system.votingsystem.v1.dto.AssemblyDTO;
 import br.com.db.system.votingsystem.v1.mapper.AssemblyMapper;
-import br.com.db.system.votingsystem.v1.model.Assembly;
+import br.com.db.system.votingsystem.v1.model.entity.Assembly;
 import br.com.db.system.votingsystem.v1.repository.AssemblyRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,24 +28,19 @@ public class AssemblyService {
         Assembly assembly = repository.findById(dto.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Assembly not found with id: " + dto.getId()));
 
-        assembly.setName(dto.getName());
-        assembly.setStart(dto.getStart());
-        assembly.setEnd(dto.getEnd());
+        mapper.updateFromDTO(dto, assembly);
 
         return mapper.toDTO(repository.save(assembly));
     }
 
     public List<AssemblyDTO> findAll() {
-        return mapper.toDTOList(repository.findAll());
+        List<Assembly> assemblies = repository.findAll();
+        return mapper.toDTOList(assemblies);
     }
 
     public AssemblyDTO findById(Long id) {
         Assembly assembly = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Assembly not found with id: " + id));
         return mapper.toDTO(assembly);
-    }
-
-    public void deleteById(Long id) {
-        repository.deleteById(id);
     }
 }

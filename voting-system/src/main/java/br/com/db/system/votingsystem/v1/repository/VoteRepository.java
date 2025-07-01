@@ -1,6 +1,6 @@
 package br.com.db.system.votingsystem.v1.repository;
 
-import br.com.db.system.votingsystem.v1.model.Vote;
+import br.com.db.system.votingsystem.v1.model.entity.Vote;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

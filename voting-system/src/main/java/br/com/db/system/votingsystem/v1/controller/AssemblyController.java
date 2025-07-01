@@ -1,7 +1,6 @@
 package br.com.db.system.votingsystem.v1.controller;
 
 import br.com.db.system.votingsystem.v1.dto.AssemblyDTO;
-import br.com.db.system.votingsystem.v1.dto.MemberDTO;
 import br.com.db.system.votingsystem.v1.service.AssemblyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,10 +34,4 @@ public class AssemblyController {
     public AssemblyDTO update(@RequestBody  AssemblyDTO assemblyDTO){
         return service.update(assemblyDTO);
     }
-
-    @DeleteMapping(value = "/{id}")
-    public void delete(@PathVariable(value = "id") Long id){
-        service.deleteById(id);
-    }
-
 }
