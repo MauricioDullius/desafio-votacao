@@ -7,6 +7,8 @@ import br.com.db.system.votingsystem.v1.exception.ResourceNotFoundException;
 import br.com.db.system.votingsystem.v1.mapper.MemberMapper;
 import br.com.db.system.votingsystem.v1.model.entity.Member;
 import br.com.db.system.votingsystem.v1.repository.MemberRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ import java.util.List;
 @Service
 public class MemberService {
 
+    private static final Logger logger = LoggerFactory.getLogger(MemberService.class);
+
     @Autowired
     private MemberRepository repository;
 
@@ -22,67 +26,96 @@ public class MemberService {
     private MemberMapper mapper;
 
     public List<MemberDTO> findAll() {
-        return mapper.toDTOList(repository.findAll());
+        logger.info("Retrieving all members");
+        List<Member> members = repository.findAll();
+        logger.info("Found {} members", members.size());
+        return mapper.toDTOList(members);
     }
 
     public MemberDTO findById(Long id) {
+        logger.info("Searching member by id {}", id);
         Member member = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Member not found with id: " + id));
+                .orElseThrow(() -> {
+                    logger.error("Member not found with id {}", id);
+                    return new ResourceNotFoundException("Member not found with id: " + id);
+                });
+        logger.info("Member found with id {}", id);
         return mapper.toDTO(member);
     }
 
     public MemberDTO findByCpf(String cpf) {
+        logger.info("Searching member by CPF {}", cpf);
         Member member = repository.findMemberByCpf(cpf);
         if (member == null) {
+            logger.error("Member not found with CPF {}", cpf);
             throw new ResourceNotFoundException("Member not found with CPF: " + cpf);
         }
+        logger.info("Member found with CPF {}", cpf);
         return mapper.toDTO(member);
     }
 
     public MemberDTO create(MemberDTO memberDTO) {
+        logger.info("Creating member with CPF {}", memberDTO.getCpf());
         validateMemberDTO(memberDTO);
 
         if (repository.findMemberByCpf(memberDTO.getCpf()) != null) {
+            logger.error("Member with CPF {} already exists", memberDTO.getCpf());
             throw new BusinessRuleException("Member with CPF: " + memberDTO.getCpf() + " already exists");
         }
 
         Member member = mapper.toEntity(memberDTO);
-        return mapper.toDTO(repository.save(member));
+        Member saved = repository.save(member);
+        logger.info("Member created successfully with id {}", saved.getId());
+        return mapper.toDTO(saved);
     }
 
     public MemberDTO update(MemberDTO memberDTO) {
+        logger.info("Updating member with id {}", memberDTO.getId());
         validateMemberDTO(memberDTO);
 
         Member member = repository.findById(memberDTO.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Member not found with id: " + memberDTO.getId()));
+                .orElseThrow(() -> {
+                    logger.error("Member not found with id {}", memberDTO.getId());
+                    return new ResourceNotFoundException("Member not found with id: " + memberDTO.getId());
+                });
 
         member.setName(memberDTO.getName());
         member.setCpf(memberDTO.getCpf());
         member.setActive(memberDTO.isActive());
 
-        return mapper.toDTO(repository.save(member));
+        Member updated = repository.save(member);
+        logger.info("Member updated successfully with id {}", updated.getId());
+        return mapper.toDTO(updated);
     }
 
     public void deleteByCpf(String cpf) {
+        logger.info("Deleting member by CPF {}", cpf);
         Member member = repository.findMemberByCpf(cpf);
         if (member == null) {
+            logger.error("Member not found with CPF {}", cpf);
             throw new ResourceNotFoundException("Member not found with CPF: " + cpf);
         }
         repository.delete(member);
+        logger.info("Member deleted with CPF {}", cpf);
     }
 
     public void deleteById(Long id) {
-        if(!repository.existsById(id)) {
+        logger.info("Deleting member by id {}", id);
+        if (!repository.existsById(id)) {
+            logger.error("Member not found with id {}", id);
             throw new ResourceNotFoundException("Member not found with id: " + id);
         }
         repository.deleteById(id);
+        logger.info("Member deleted with id {}", id);
     }
 
     private void validateMemberDTO(MemberDTO dto) {
         if (dto.getName() == null || dto.getName().isBlank()) {
+            logger.warn("Invalid request: Name is null or blank");
             throw new InvalidRequestException("Name must not be null or blank");
         }
         if (dto.getCpf() == null || dto.getCpf().isBlank()) {
+            logger.warn("Invalid request: CPF is null or blank");
             throw new InvalidRequestException("CPF must not be null or blank");
         }
     }
