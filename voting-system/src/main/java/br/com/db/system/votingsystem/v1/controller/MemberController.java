@@ -1,5 +1,6 @@
 package br.com.db.system.votingsystem.v1.controller;
 
+import br.com.db.system.votingsystem.v1.controller.doc.MemberControllerDoc;
 import br.com.db.system.votingsystem.v1.dto.MemberDTO;
 import br.com.db.system.votingsystem.v1.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,56 +11,52 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/member/v1")
-public class MemberController {
+public class MemberController implements MemberControllerDoc {
 
     @Autowired
     private MemberService service;
 
+    @Override
     @GetMapping
-    public ResponseEntity<Page<MemberDTO>> findAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
-
+    public ResponseEntity<Page<MemberDTO>> findAll(@RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "20") int size) {
         int maxSize = 30;
         if (size > maxSize) {
             size = maxSize;
         }
-
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
         Page<MemberDTO> resultPage = service.findAll(pageable);
         return ResponseEntity.ok(resultPage);
     }
 
-
+    @Override
     @GetMapping("/{id}")
     public ResponseEntity<MemberDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
+    @Override
     @PostMapping
     public ResponseEntity<MemberDTO> create(@RequestBody MemberDTO memberDTO) throws Exception {
         MemberDTO created = service.create(memberDTO);
         return ResponseEntity.status(201).body(created);
     }
 
+    @Override
     @PutMapping
     public ResponseEntity<MemberDTO> update(@RequestBody MemberDTO memberDTO) {
         return ResponseEntity.ok(service.update(memberDTO));
     }
 
+    @Override
     @GetMapping("/findMemberByCpf/{cpf}")
     public ResponseEntity<MemberDTO> findByCpf(@PathVariable String cpf) {
         return ResponseEntity.ok(service.findByCpf(cpf));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
-
+    @Override
     @DeleteMapping
     public ResponseEntity<Void> deleteByCpf(@RequestParam String cpf) {
         service.deleteByCpf(cpf);

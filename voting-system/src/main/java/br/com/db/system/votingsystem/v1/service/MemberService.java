@@ -120,16 +120,6 @@ public class MemberService {
         logger.info("Member deleted with CPF {}", cpf);
     }
 
-    public void deleteById(Long id) {
-        logger.info("Deleting member by id {}", id);
-        if (!repository.existsById(id)) {
-            logger.error("Member not found with id {}", id);
-            throw new ResourceNotFoundException("Member not found with id: " + id);
-        }
-        repository.deleteById(id);
-        logger.info("Member deleted with id {}", id);
-    }
-
     private void validateMemberDTO(MemberDTO dto) {
         if (dto.getName() == null || dto.getName().isBlank()) {
             logger.warn("Invalid request: Name is null or blank");
