@@ -1,6 +1,8 @@
 package br.com.db.system.votingsystem.v1.service;
 
+import br.com.db.system.votingsystem.v1.client.FakeCpfValidatorClient;
 import br.com.db.system.votingsystem.v1.dto.MemberDTO;
+import br.com.db.system.votingsystem.v1.client.dto.ValidationResult;
 import br.com.db.system.votingsystem.v1.exception.BusinessRuleException;
 import br.com.db.system.votingsystem.v1.exception.InvalidRequestException;
 import br.com.db.system.votingsystem.v1.exception.ResourceNotFoundException;
@@ -24,6 +26,9 @@ public class MemberService {
 
     @Autowired
     private MemberMapper mapper;
+
+    @Autowired
+    private FakeCpfValidatorClient cpfValidator;
 
     public List<MemberDTO> findAll() {
         logger.info("Retrieving all members");
@@ -63,6 +68,13 @@ public class MemberService {
             throw new BusinessRuleException("Member with CPF: " + memberDTO.getCpf() + " already exists");
         }
 
+        ValidationResult result = cpfValidator.validateCpf(memberDTO.getCpf());
+
+        if (!result.isValid()) {
+            logger.warn("CPF {} is invalid", memberDTO.getCpf());
+            throw new ResourceNotFoundException("Invalid CPF: " + memberDTO.getCpf());
+        }
+
         Member member = mapper.toEntity(memberDTO);
         Member saved = repository.save(member);
         logger.info("Member created successfully with id {}", saved.getId());
@@ -73,17 +85,24 @@ public class MemberService {
         logger.info("Updating member with id {}", memberDTO.getId());
         validateMemberDTO(memberDTO);
 
-        Member member = repository.findById(memberDTO.getId())
+        Member existing = repository.findById(memberDTO.getId())
                 .orElseThrow(() -> {
                     logger.error("Member not found with id {}", memberDTO.getId());
                     return new ResourceNotFoundException("Member not found with id: " + memberDTO.getId());
                 });
 
-        member.setName(memberDTO.getName());
-        member.setCpf(memberDTO.getCpf());
-        member.setActive(memberDTO.isActive());
+        ValidationResult result = cpfValidator.validateCpf(memberDTO.getCpf());
 
-        Member updated = repository.save(member);
+        if (!result.isValid()) {
+            logger.warn("CPF {} is invalid", memberDTO.getCpf());
+            throw new ResourceNotFoundException("Invalid CPF: " + memberDTO.getCpf());
+        }
+
+        existing.setName(memberDTO.getName());
+        existing.setCpf(memberDTO.getCpf());
+        existing.setActive(memberDTO.isActive());
+
+        Member updated = repository.save(existing);
         logger.info("Member updated successfully with id {}", updated.getId());
         return mapper.toDTO(updated);
     }
