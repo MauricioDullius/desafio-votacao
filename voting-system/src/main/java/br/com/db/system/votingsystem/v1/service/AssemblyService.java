@@ -9,6 +9,8 @@ import br.com.db.system.votingsystem.v1.repository.AssemblyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -57,11 +59,11 @@ public class AssemblyService {
         return mapper.toDTO(updated);
     }
 
-    public List<AssemblyDTO> findAll() {
+    public Page<AssemblyDTO> findAll(Pageable pageable) {
         logger.info("Retrieving all assemblies");
-        List<Assembly> assemblies = repository.findAll();
-        logger.info("Found {} assemblies", assemblies.size());
-        return mapper.toDTOList(assemblies);
+        Page<Assembly> assembliesPage = repository.findAll(pageable);
+        logger.info("Found {} assemblies", assembliesPage.getNumberOfElements());
+        return assembliesPage.map(mapper::toDTO);
     }
 
     public AssemblyDTO findById(Long id) {

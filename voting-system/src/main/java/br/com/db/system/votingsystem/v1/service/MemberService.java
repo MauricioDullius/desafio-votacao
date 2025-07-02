@@ -12,6 +12,8 @@ import br.com.db.system.votingsystem.v1.repository.MemberRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,11 +32,11 @@ public class MemberService {
     @Autowired
     private FakeCpfValidatorClient cpfValidator;
 
-    public List<MemberDTO> findAll() {
+    public Page<MemberDTO> findAll(Pageable pageable) {
         logger.info("Retrieving all members");
-        List<Member> members = repository.findAll();
-        logger.info("Found {} members", members.size());
-        return mapper.toDTOList(members);
+        Page<Member> membersPage = repository.findAll(pageable);
+        logger.info("Found {} members", membersPage.getNumberOfElements());
+        return membersPage.map(mapper::toDTO);
     }
 
     public MemberDTO findById(Long id) {

@@ -16,6 +16,8 @@ import br.com.db.system.votingsystem.v1.repository.VoteRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +31,7 @@ public class VoteService {
     private VoteRepository repository;
 
     @Autowired
-    private VoteMapper voteMapper;
+    private VoteMapper mapper;
 
     @Autowired
     private AgendaRepository agendaRepository;
@@ -37,18 +39,18 @@ public class VoteService {
     @Autowired
     private MemberRepository memberRepository;
 
-    public List<VoteDTO> findAll() {
+    public Page<VoteDTO> findAll(Pageable pageable) {
         logger.info("Retrieving all votes");
-        List<Vote> votes = repository.findAll();
-        logger.info("Found {} votes", votes.size());
-        return voteMapper.toDTOList(votes);
+        Page<Vote> votesPage = repository.findAll(pageable);
+        logger.info("Found {} votes", votesPage.getNumberOfElements());
+        return votesPage.map(mapper::toDTO);
     }
 
     public List<VoteDTO> findByAgendaId(Long agendaId) {
         logger.info("Retrieving votes for agendaId {}", agendaId);
         List<Vote> votes = repository.findByAgendaId(agendaId);
         logger.info("Found {} votes for agendaId {}", votes.size(), agendaId);
-        return voteMapper.toDTOList(votes);
+        return mapper.toDTOList(votes);
     }
 
     public VoteDTO findById(Long id) {
@@ -59,7 +61,7 @@ public class VoteService {
                     return new ResourceNotFoundException("Vote not found with id: " + id);
                 });
         logger.info("Vote found with id {}", id);
-        return voteMapper.toDTO(vote);
+        return mapper.toDTO(vote);
     }
 
     public VoteDTO update(VoteDTO dto) {
@@ -83,7 +85,7 @@ public class VoteService {
 
         Vote updated = repository.save(vote);
         logger.info("Vote updated successfully with id {}", updated.getId());
-        return voteMapper.toDTO(updated);
+        return mapper.toDTO(updated);
     }
 
     public VoteDTO create(VoteDTO dto) {
@@ -108,13 +110,13 @@ public class VoteService {
             throw new BusinessRuleException("This member has already voted on this agenda");
         }
 
-        Vote vote = voteMapper.toEntity(dto);
+        Vote vote = mapper.toEntity(dto);
         vote.setAgenda(agenda);
         vote.setMember(member);
 
         Vote saved = repository.save(vote);
         logger.info("Vote created successfully with id {}", saved.getId());
-        return voteMapper.toDTO(saved);
+        return mapper.toDTO(saved);
     }
 
     public void deleteById(Long id) {

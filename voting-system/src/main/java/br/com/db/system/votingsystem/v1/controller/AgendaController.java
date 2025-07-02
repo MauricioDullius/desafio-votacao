@@ -3,6 +3,10 @@ package br.com.db.system.votingsystem.v1.controller;
 import br.com.db.system.votingsystem.v1.dto.AgendaDTO;
 import br.com.db.system.votingsystem.v1.service.AgendaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,8 +20,16 @@ public class AgendaController {
     private AgendaService service;
 
     @GetMapping
-    public ResponseEntity<List<AgendaDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<Page<AgendaDTO>> findAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+
+        int maxSize = 30;
+        if (size > maxSize) {
+            size = maxSize;
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+
+        return ResponseEntity.ok(service.findAll(pageable));
     }
 
     @GetMapping("/{id}")

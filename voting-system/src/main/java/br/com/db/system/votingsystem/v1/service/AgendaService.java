@@ -12,6 +12,8 @@ import br.com.db.system.votingsystem.v1.repository.AssemblyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,14 +33,16 @@ public class AgendaService {
     @Autowired
     private AssemblyRepository assemblyRepository;
 
-    public List<AgendaDTO> findAll() {
+    public Page<AgendaDTO> findAll(Pageable pageable) {
         logger.info("Retrieving all agendas");
-        List<AgendaDTO> agendas = repository.findAll()
-                .stream()
-                .map(mapper::toDTO)
-                .toList();
-        logger.info("Found {} agendas", agendas.size());
-        return agendas;
+
+        Page<Agenda> agendaPage = repository.findAll(pageable);
+
+        Page<AgendaDTO> agendaDTOPage = agendaPage.map(mapper::toDTO);
+
+        logger.info("Found {} agendas", agendaDTOPage.getNumberOfElements());
+
+        return agendaDTOPage;
     }
 
     public AgendaDTO findById(Long id) {
