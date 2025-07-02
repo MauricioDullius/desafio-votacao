@@ -144,6 +144,7 @@ public class VoteService {
         }
         boolean validVote = false;
         for (VoteState state : VoteState.values()) {
+
             if (state == dto.getVote()) {
                 validVote = true;
                 break;
