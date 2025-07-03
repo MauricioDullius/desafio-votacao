@@ -51,7 +51,6 @@ Este projeto foi desenvolvido como parte de um desafio técnico para DB, com o o
 | Mapeamento de Objetos  | MapStruct                  |
 | Banco de Dados         | MySQL                      |
 | Logs                   | SLF4J (LoggerFactory)      |
-| Gerenciamento de Depend.| Spring Dependency Plugin   |
 
 ---
 
@@ -125,7 +124,6 @@ Execute os testes com:
 
 - Java 21  
 - MySQL  
-- Docker (opcional)  
 - Gradle ou suporte via IDE  
 
 ### 2. Configurar Banco de Dados
