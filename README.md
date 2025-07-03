@@ -1,6 +1,6 @@
 # 🗳️ Sistema de Votação
 
-Uma API RESTful para gerenciamento de assembleias, pautas, membros e votos. Desenvolvida em Java 21 com Spring Boot, contendo validações, persistência e documentação via Swagger.
+Uma API REST para gerenciamento de assembleias, pautas, membros e votos. Desenvolvida em Java 21 com Spring Boot, contendo validações, persistência e documentação via Swagger.
 
 ---
 
@@ -100,9 +100,16 @@ http://localhost:8080/swagger-ui/index.html
 - Tratamento consistente de exceções com classes personalizadas.
 - Implementação de testes unitários e de integração para garantir a qualidade do código.
 - Integração com o Flyway para versionamento e migração do banco de dados.
-- Utilização de MapStruct para mapeamento eficiente entre entidades e DTOs.
+- Utilização de MapStruct para mapeamento entre entidades e DTOs.
+- Separação entre camadas (controller, service, repository, DTO, mapper).
+- Adoção de práticas de **Clean Code**, com foco em legibilidade, manutenibilidade e reutilização. O projeto segue o padrão arquitetural **MVC (Model-View-Controller)** e aplica os princípios **SOLID** para garantir baixo acoplamento e alta coesão entre os componentes.
+- **Versionamento de API:**  
+  A aplicação segue a estratégia de versionamento via URI, utilizando o prefixo `v1` nos endpoints (ex: `/api/v1/members`). Essa abordagem permite evoluções futuras com compatibilidade entre versões.
+- **Performance com paginação:**  
+  Para garantir a performance em cenários com grande volume de dados (ex: milhares de votos), a aplicação utiliza `Pageable` nos endpoints de listagem, limitando o carregamento em memória e facilitando a escalabilidade.
 - **Validação Fake de CPF:**  
   Para fins de desenvolvimento e testes, a validação do CPF é simulada de forma aleatória. Ou seja, o sistema gera um resultado booleano (válido ou inválido) com base em uma probabilidade, sem consultar um serviço externo real. Essa abordagem facilita o desenvolvimento sem dependências externas.
+
 
 ---
 
