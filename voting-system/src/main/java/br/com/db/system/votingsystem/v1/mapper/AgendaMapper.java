@@ -13,6 +13,7 @@ public interface AgendaMapper {
     @Mapping(target = "assemblyId", source = "assembly.id")
     AgendaDTO toDTO(Agenda agenda);
 
+    @Mapping(target = "votes", ignore = true)
     @Mapping(target = "assembly", ignore = true)
     Agenda toEntity(AgendaDTO dto);
 

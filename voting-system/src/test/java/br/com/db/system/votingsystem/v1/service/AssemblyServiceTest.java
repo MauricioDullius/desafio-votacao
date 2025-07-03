@@ -268,46 +268,4 @@ public class AssemblyServiceTest {
         verify(repository).findAll(any(Pageable.class));
         verify(mapper).toDTO(assembly);
     }
-
-    @Test
-    void shouldThrowWhenCreateAssemblyWithNullName() {
-        AssemblyDTO dto = new AssemblyDTO();
-        dto.setName(null);
-        dto.setStart(LocalDateTime.now().plusDays(1));
-        dto.setEnd(LocalDateTime.now().plusDays(2));
-
-        InvalidRequestException ex = assertThrows(InvalidRequestException.class, () -> {
-            service.create(dto);
-        });
-
-        assertEquals("Name must not be null or blank", ex.getMessage());
-    }
-
-    @Test
-    void shouldThrowWhenCreateAssemblyWithNullStartDate() {
-        AssemblyDTO dto = new AssemblyDTO();
-        dto.setName("Assembly");
-        dto.setStart(null);
-        dto.setEnd(LocalDateTime.now().plusDays(2));
-
-        InvalidRequestException ex = assertThrows(InvalidRequestException.class, () -> {
-            service.create(dto);
-        });
-
-        assertEquals("Start date must be provided", ex.getMessage());
-    }
-
-    @Test
-    void shouldThrowWhenCreateAssemblyWithNullEndDate() {
-        AssemblyDTO dto = new AssemblyDTO();
-        dto.setName("Assembly");
-        dto.setStart(LocalDateTime.now().plusDays(1));
-        dto.setEnd(null);
-
-        InvalidRequestException ex = assertThrows(InvalidRequestException.class, () -> {
-            service.create(dto);
-        });
-
-        assertEquals("End date must be provided", ex.getMessage());
-    }
 }

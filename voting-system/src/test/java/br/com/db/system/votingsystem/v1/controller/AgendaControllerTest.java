@@ -1,6 +1,7 @@
 package br.com.db.system.votingsystem.v1.controller;
 
 import br.com.db.system.votingsystem.v1.dto.AgendaDTO;
+import br.com.db.system.votingsystem.v1.model.enums.AgendaState;
 import br.com.db.system.votingsystem.v1.service.AgendaService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -47,6 +48,7 @@ class AgendaControllerTest {
         agendaDTO.setAssemblyId(1L);
         agendaDTO.setStart(LocalDateTime.now().plusMinutes(5));
         agendaDTO.setEnd(LocalDateTime.now().plusMinutes(10));
+        agendaDTO.setState(AgendaState.IN_VOTING);
     }
 
     @Test

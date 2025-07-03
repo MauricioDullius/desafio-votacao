@@ -8,7 +8,7 @@ import br.com.db.system.votingsystem.v1.mapper.AgendaMapper;
 import br.com.db.system.votingsystem.v1.model.entity.Agenda;
 import br.com.db.system.votingsystem.v1.model.entity.Assembly;
 import br.com.db.system.votingsystem.v1.repository.AgendaRepository;
-import br.com.db.system.votingsystem.v1.repository.AssemblyRepository;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class AgendaService {
@@ -31,7 +30,7 @@ public class AgendaService {
     private AgendaMapper mapper;
 
     @Autowired
-    private AssemblyRepository assemblyRepository;
+    private AssemblyService assemblyService;
 
     public Page<AgendaDTO> findAll(Pageable pageable) {
         logger.info("Retrieving all agendas");
@@ -55,16 +54,21 @@ public class AgendaService {
         logger.info("Agenda found with id {}", id);
         return mapper.toDTO(agenda);
     }
+    public Agenda findByIdEntity(Long id) {
+        logger.info("Searching for agenda with id {}", id);
+        Agenda agenda = repository.findById(id)
+                .orElseThrow(() -> {
+                    logger.error("Agenda not found with id {}", id);
+                    return new ResourceNotFoundException("Agenda not found with id: " + id);
+                });
+        logger.info("Agenda found with id {}", id);
+        return agenda;
+    }
 
     public AgendaDTO create(AgendaDTO dto) {
         logger.info("Creating agenda with description '{}'", dto.getDescription());
-        validateAgendaDTO(dto);
 
-        Assembly assembly = assemblyRepository.findById(dto.getAssemblyId())
-                .orElseThrow(() -> {
-                    logger.error("Assembly not found with id {}", dto.getAssemblyId());
-                    return new ResourceNotFoundException("Assembly not found with id: " + dto.getAssemblyId());
-                });
+        Assembly assembly = assemblyService.findByIdEntity(dto.getAssemblyId());
 
         Agenda agenda = mapper.toEntity(dto);
         agenda.setAssembly(assembly);
@@ -92,11 +96,7 @@ public class AgendaService {
                     return new ResourceNotFoundException("Agenda not found with id: " + dto.getId());
                 });
 
-        Assembly assembly = assemblyRepository.findById(dto.getAssemblyId())
-                .orElseThrow(() -> {
-                    logger.error("Assembly not found with id {}", dto.getAssemblyId());
-                    return new ResourceNotFoundException("Assembly not found with id: " + dto.getAssemblyId());
-                });
+        Assembly assembly = assemblyService.findByIdEntity(dto.getAssemblyId());
 
         agenda.setDescription(dto.getDescription());
         agenda.setStart(dto.getStart());
@@ -125,17 +125,6 @@ public class AgendaService {
         if (end.isBefore(start) || start.isBefore(LocalDateTime.now())) {
             logger.warn("Invalid dates: start={} end={}", start, end);
             throw new BusinessRuleException("Start date cannot be later than the end date or earlier than the current date.");
-        }
-    }
-
-    private void validateAgendaDTO(AgendaDTO dto) {
-        if (dto.getDescription() == null || dto.getDescription().isBlank()) {
-            logger.warn("Invalid request: description is null or blank");
-            throw new InvalidRequestException("Description must not be null or blank");
-        }
-        if (dto.getAssemblyId() == null) {
-            logger.warn("Invalid request: AssemblyId is null or blank");
-            throw new InvalidRequestException("AssemblyId must not be null or blank");
         }
     }
 }

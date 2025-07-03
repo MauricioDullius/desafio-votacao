@@ -3,16 +3,19 @@ package br.com.db.system.votingsystem.v1.controller;
 import br.com.db.system.votingsystem.v1.controller.doc.VoteControllerDoc;
 import br.com.db.system.votingsystem.v1.dto.VoteDTO;
 import br.com.db.system.votingsystem.v1.service.VoteService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/vote/v1")
+
 public class VoteController implements VoteControllerDoc {
 
     @Autowired
@@ -38,14 +41,14 @@ public class VoteController implements VoteControllerDoc {
 
     @Override
     @PostMapping
-    public ResponseEntity<VoteDTO> create(@RequestBody VoteDTO voteDTO) {
+    public ResponseEntity<VoteDTO> create(@RequestBody @Valid VoteDTO voteDTO) throws Exception {
         VoteDTO created = service.create(voteDTO);
         return ResponseEntity.status(201).body(created);
     }
 
     @Override
     @PutMapping
-    public ResponseEntity<VoteDTO> update(@RequestBody VoteDTO voteDTO) {
+    public ResponseEntity<VoteDTO> update(@RequestBody @Valid VoteDTO voteDTO) {
         return ResponseEntity.ok(service.update(voteDTO));
     }
 

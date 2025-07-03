@@ -3,6 +3,7 @@ package br.com.db.system.votingsystem.v1.controller;
 import br.com.db.system.votingsystem.v1.controller.doc.AgendaControllerDoc;
 import br.com.db.system.votingsystem.v1.dto.AgendaDTO;
 import br.com.db.system.votingsystem.v1.service.AgendaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,13 +39,13 @@ public class AgendaController implements AgendaControllerDoc {
 
     @Override
     @PostMapping
-    public ResponseEntity<AgendaDTO> create(@RequestBody AgendaDTO agendaDTO) {
+    public ResponseEntity<AgendaDTO> create(@RequestBody @Valid AgendaDTO agendaDTO) {
         return ResponseEntity.status(201).body(service.create(agendaDTO));
     }
 
     @Override
     @PutMapping
-    public ResponseEntity<AgendaDTO> update(@RequestBody AgendaDTO agendaDTO) {
+    public ResponseEntity<AgendaDTO> update(@RequestBody @Valid AgendaDTO agendaDTO) {
         return ResponseEntity.ok(service.update(agendaDTO));
     }
 

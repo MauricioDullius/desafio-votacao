@@ -60,10 +60,19 @@ public class MemberService {
         logger.info("Member found with CPF {}", cpf);
         return mapper.toDTO(member);
     }
+    public Member findByCpfEntity(String cpf) {
+        logger.info("Searching member by CPF {}", cpf);
+        Member member = repository.findMemberByCpf(cpf);
+        if (member == null) {
+            logger.error("Member not found with CPF {}", cpf);
+            throw new ResourceNotFoundException("Member not found with CPF: " + cpf);
+        }
+        logger.info("Member found with CPF {}", cpf);
+        return member;
+    }
 
     public MemberDTO create(MemberDTO memberDTO) {
         logger.info("Creating member with CPF {}", memberDTO.getCpf());
-        validateMemberDTO(memberDTO);
 
         if (repository.findMemberByCpf(memberDTO.getCpf()) != null) {
             logger.error("Member with CPF {} already exists", memberDTO.getCpf());
@@ -85,7 +94,6 @@ public class MemberService {
 
     public MemberDTO update(MemberDTO memberDTO) {
         logger.info("Updating member with id {}", memberDTO.getId());
-        validateMemberDTO(memberDTO);
 
         Member existing = repository.findById(memberDTO.getId())
                 .orElseThrow(() -> {
@@ -118,16 +126,5 @@ public class MemberService {
         }
         repository.delete(member);
         logger.info("Member deleted with CPF {}", cpf);
-    }
-
-    private void validateMemberDTO(MemberDTO dto) {
-        if (dto.getName() == null || dto.getName().isBlank()) {
-            logger.warn("Invalid request: Name is null or blank");
-            throw new InvalidRequestException("Name must not be null or blank");
-        }
-        if (dto.getCpf() == null || dto.getCpf().isBlank()) {
-            logger.warn("Invalid request: CPF is null or blank");
-            throw new InvalidRequestException("CPF must not be null or blank");
-        }
     }
 }

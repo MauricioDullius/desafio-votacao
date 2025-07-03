@@ -34,10 +34,10 @@ public class VoteService {
     private VoteMapper mapper;
 
     @Autowired
-    private AgendaRepository agendaRepository;
+    private AgendaService agendaService;
 
     @Autowired
-    private MemberRepository memberRepository;
+    private MemberService memberService;
 
     public Page<VoteDTO> findAll(Pageable pageable) {
         logger.info("Retrieving all votes");
@@ -74,7 +74,7 @@ public class VoteService {
                     return new ResourceNotFoundException("Vote not found with id: " + dto.getId());
                 });
 
-        Member member = memberRepository.findMemberByCpf(dto.getMemberCpf());
+        Member member = memberService.findByCpfEntity(dto.getMemberCpf());
         if (member == null) {
             logger.error("Member not found with CPF {}", dto.getMemberCpf());
             throw new ResourceNotFoundException("Member not found with CPF: " + dto.getMemberCpf());
@@ -92,17 +92,13 @@ public class VoteService {
         logger.info("Creating vote for member CPF {} on agendaId {}", dto.getMemberCpf(), dto.getAgendaId());
         validateVoteDTO(dto);
 
-        Member member = memberRepository.findMemberByCpf(dto.getMemberCpf());
+        Member member = memberService.findByCpfEntity(dto.getMemberCpf());
         if (member == null) {
             logger.error("Member not found with CPF {}", dto.getMemberCpf());
             throw new ResourceNotFoundException("Member not found with CPF: " + dto.getMemberCpf());
         }
 
-        Agenda agenda = agendaRepository.findById(dto.getAgendaId())
-                .orElseThrow(() -> {
-                    logger.error("Agenda not found with id {}", dto.getAgendaId());
-                    return new ResourceNotFoundException("Agenda not found with id: " + dto.getAgendaId());
-                });
+        Agenda agenda = agendaService.findByIdEntity(dto.getAgendaId());
 
         boolean hasVoted = repository.existsByMemberIdAndAgendaId(member.getId(), agenda.getId());
         if (hasVoted) {
@@ -130,18 +126,6 @@ public class VoteService {
     }
 
     private void validateVoteDTO(VoteDTO dto) {
-        if (dto.getAgendaId() == null) {
-            logger.warn("Invalid request: AgendaId not provided");
-            throw new InvalidRequestException("AgendaId must be provided");
-        }
-        if (dto.getMemberCpf() == null || dto.getMemberCpf().isBlank()) {
-            logger.warn("Invalid request: Member CPF is null or blank");
-            throw new InvalidRequestException("Member CPF must not be null or blank");
-        }
-        if (dto.getVote() == null) {
-            logger.warn("Invalid request: Vote not provided");
-            throw new InvalidRequestException("Vote must be provided");
-        }
         boolean validVote = false;
         for (VoteState state : VoteState.values()) {
 

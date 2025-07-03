@@ -3,6 +3,7 @@ package br.com.db.system.votingsystem.v1.controller;
 import br.com.db.system.votingsystem.v1.controller.doc.AssemblyControllerDoc;
 import br.com.db.system.votingsystem.v1.dto.AssemblyDTO;
 import br.com.db.system.votingsystem.v1.service.AssemblyService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,14 +39,14 @@ public class AssemblyController implements AssemblyControllerDoc {
 
     @Override
     @PostMapping
-    public ResponseEntity<AssemblyDTO> create(@RequestBody AssemblyDTO assemblyDTO) {
+    public ResponseEntity<AssemblyDTO> create(@RequestBody @Valid AssemblyDTO assemblyDTO) {
         AssemblyDTO created = service.create(assemblyDTO);
         return ResponseEntity.status(201).body(created);
     }
 
     @Override
     @PutMapping
-    public ResponseEntity<AssemblyDTO> update(@RequestBody AssemblyDTO assemblyDTO) {
+    public ResponseEntity<AssemblyDTO> update(@RequestBody @Valid AssemblyDTO assemblyDTO) {
         return ResponseEntity.ok(service.update(assemblyDTO));
     }
 }

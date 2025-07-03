@@ -3,6 +3,7 @@ package br.com.db.system.votingsystem.v1.controller;
 import br.com.db.system.votingsystem.v1.controller.doc.MemberControllerDoc;
 import br.com.db.system.votingsystem.v1.dto.MemberDTO;
 import br.com.db.system.votingsystem.v1.service.MemberService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,12 +12,22 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 @RestController
 @RequestMapping("/api/member/v1")
 public class MemberController implements MemberControllerDoc {
 
     @Autowired
     private MemberService service;
+
+    @Autowired
+    private Validator validator;
 
     @Override
     @GetMapping
@@ -39,14 +50,14 @@ public class MemberController implements MemberControllerDoc {
 
     @Override
     @PostMapping
-    public ResponseEntity<MemberDTO> create(@RequestBody MemberDTO memberDTO) throws Exception {
+    public ResponseEntity<MemberDTO> create(@RequestBody @Valid MemberDTO memberDTO) throws Exception {
         MemberDTO created = service.create(memberDTO);
         return ResponseEntity.status(201).body(created);
     }
 
     @Override
     @PutMapping
-    public ResponseEntity<MemberDTO> update(@RequestBody MemberDTO memberDTO) {
+    public ResponseEntity<MemberDTO> update(@RequestBody @Valid MemberDTO memberDTO) {
         return ResponseEntity.ok(service.update(memberDTO));
     }
 
@@ -62,4 +73,18 @@ public class MemberController implements MemberControllerDoc {
         service.deleteByCpf(cpf);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/test-validation")
+    public ResponseEntity<?> testValidation(@RequestBody MemberDTO memberDTO) {
+        Set<ConstraintViolation<MemberDTO>> violations = validator.validate(memberDTO);
+        if (!violations.isEmpty()) {
+            Map<String, String> errors = new HashMap<>();
+            for (ConstraintViolation<MemberDTO> violation : violations) {
+                errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+            }
+            return ResponseEntity.badRequest().body(errors);
+        }
+        return ResponseEntity.ok("Valid!");
+    }
+
 }
