@@ -71,22 +71,24 @@ public class MemberService {
         return member;
     }
 
-    public MemberDTO create(MemberDTO memberDTO) {
-        logger.info("Creating member with CPF {}", memberDTO.getCpf());
+    public MemberDTO create(MemberDTO dto) {
+        logger.info("Creating member with CPF {}", dto.getCpf());
 
-        if (repository.findMemberByCpf(memberDTO.getCpf()) != null) {
-            logger.error("Member with CPF {} already exists", memberDTO.getCpf());
-            throw new BusinessRuleException("Member with CPF: " + memberDTO.getCpf() + " already exists");
+        if( dto.getId() != null ) dto.setId(null);
+
+        if (repository.findMemberByCpf(dto.getCpf()) != null) {
+            logger.error("Member with CPF {} already exists", dto.getCpf());
+            throw new BusinessRuleException("Member with CPF: " + dto.getCpf() + " already exists");
         }
 
-        ValidationResult result = cpfValidator.validateCpf(memberDTO.getCpf());
+        ValidationResult result = cpfValidator.validateCpf(dto.getCpf());
 
         if (!result.isValid()) {
-            logger.warn("CPF {} is invalid", memberDTO.getCpf());
-            throw new ResourceNotFoundException("Invalid CPF: " + memberDTO.getCpf());
+            logger.warn("CPF {} is invalid", dto.getCpf());
+            throw new ResourceNotFoundException("Invalid CPF: " + dto.getCpf());
         }
 
-        Member member = mapper.toEntity(memberDTO);
+        Member member = mapper.toEntity(dto);
         Member saved = repository.save(member);
         logger.info("Member created successfully with id {}", saved.getId());
         return mapper.toDTO(saved);

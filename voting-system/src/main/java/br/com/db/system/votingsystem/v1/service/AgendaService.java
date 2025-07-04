@@ -8,6 +8,7 @@ import br.com.db.system.votingsystem.v1.mapper.AgendaMapper;
 import br.com.db.system.votingsystem.v1.model.entity.Agenda;
 import br.com.db.system.votingsystem.v1.model.entity.Assembly;
 import br.com.db.system.votingsystem.v1.repository.AgendaRepository;
+import br.com.db.system.votingsystem.v1.util.DateUtils;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,8 @@ public class AgendaService {
     public AgendaDTO create(AgendaDTO dto) {
         logger.info("Creating agenda with description '{}'", dto.getDescription());
 
+        if( dto.getId() != null ) dto.setId(null);
+
         Assembly assembly = assemblyService.findByIdEntity(dto.getAssemblyId());
 
         Agenda agenda = mapper.toEntity(dto);
@@ -75,7 +78,7 @@ public class AgendaService {
         agenda.setStart(dto.getStart() == null ? LocalDateTime.now() : dto.getStart());
         agenda.setEnd(dto.getEnd() == null ? agenda.getStart().plusMinutes(1) : dto.getEnd());
 
-        validateData(agenda.getStart(), agenda.getEnd());
+        DateUtils.validateDates(agenda.getStart(), agenda.getEnd());
 
         agenda = repository.save(agenda);
         logger.info("Agenda created successfully with id {}", agenda.getId());
@@ -103,7 +106,7 @@ public class AgendaService {
         agenda.setEnd(dto.getEnd());
         agenda.setAssembly(assembly);
 
-        validateData(agenda.getStart(), agenda.getEnd());
+        DateUtils.validateDates(agenda.getStart(), agenda.getEnd());
 
         agenda = repository.save(agenda);
         logger.info("Agenda updated successfully with id {}", agenda.getId());
@@ -119,12 +122,5 @@ public class AgendaService {
         }
         repository.deleteById(id);
         logger.info("Agenda deleted with id {}", id);
-    }
-
-    private void validateData(LocalDateTime start, LocalDateTime end) {
-        if (end.isBefore(start) || start.isBefore(LocalDateTime.now())) {
-            logger.warn("Invalid dates: start={} end={}", start, end);
-            throw new BusinessRuleException("Start date cannot be later than the end date or earlier than the current date.");
-        }
     }
 }

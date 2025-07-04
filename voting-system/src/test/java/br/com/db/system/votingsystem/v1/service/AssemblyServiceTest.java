@@ -1,6 +1,7 @@
 package br.com.db.system.votingsystem.v1.service;
 
 import br.com.db.system.votingsystem.v1.dto.AssemblyDTO;
+import br.com.db.system.votingsystem.v1.exception.BusinessRuleException;
 import br.com.db.system.votingsystem.v1.exception.InvalidRequestException;
 import br.com.db.system.votingsystem.v1.exception.ResourceNotFoundException;
 import br.com.db.system.votingsystem.v1.mapper.AssemblyMapper;
@@ -88,7 +89,7 @@ public class AssemblyServiceTest {
 
         when(mapper.toEntity(dto)).thenReturn(entity);
 
-        InvalidRequestException ex = assertThrows(InvalidRequestException.class, () -> {
+        BusinessRuleException ex = assertThrows(BusinessRuleException.class, () -> {
             service.create(dto);
         });
 
@@ -190,7 +191,7 @@ public class AssemblyServiceTest {
             return null;
         }).when(mapper).updateFromDTO(dto, existing);
 
-        InvalidRequestException ex = assertThrows(InvalidRequestException.class, () -> {
+        BusinessRuleException ex = assertThrows(BusinessRuleException.class, () -> {
             service.update(dto);
         });
 

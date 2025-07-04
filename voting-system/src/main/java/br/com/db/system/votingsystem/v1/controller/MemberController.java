@@ -74,17 +74,4 @@ public class MemberController implements MemberControllerDoc {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/test-validation")
-    public ResponseEntity<?> testValidation(@RequestBody MemberDTO memberDTO) {
-        Set<ConstraintViolation<MemberDTO>> violations = validator.validate(memberDTO);
-        if (!violations.isEmpty()) {
-            Map<String, String> errors = new HashMap<>();
-            for (ConstraintViolation<MemberDTO> violation : violations) {
-                errors.put(violation.getPropertyPath().toString(), violation.getMessage());
-            }
-            return ResponseEntity.badRequest().body(errors);
-        }
-        return ResponseEntity.ok("Valid!");
-    }
-
 }

@@ -29,6 +29,8 @@ public class AssemblyService {
     public AssemblyDTO create(AssemblyDTO dto) {
         logger.info("Creating assembly with name '{}'", dto.getName());
 
+        if( dto.getId() != null ) dto.setId(null);
+
         Assembly assembly = mapper.toEntity(dto);
         DateUtils.validateDates(assembly.getStart(), assembly.getEnd());
 

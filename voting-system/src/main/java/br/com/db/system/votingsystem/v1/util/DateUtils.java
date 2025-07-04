@@ -1,5 +1,6 @@
 package br.com.db.system.votingsystem.v1.util;
 
+import br.com.db.system.votingsystem.v1.exception.BusinessRuleException;
 import br.com.db.system.votingsystem.v1.exception.InvalidRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ public class DateUtils {
     public static void validateDates(LocalDateTime start, LocalDateTime end) {
         if (end.isBefore(start) || start.isBefore(LocalDateTime.now())) {
             logger.warn("Invalid dates: start={} end={}", start, end);
-            throw new InvalidRequestException("Start date cannot be later than the end date or earlier than the current date.");
+            throw new BusinessRuleException("Start date cannot be later than the end date or earlier than the current date.");
         }
     }
 }

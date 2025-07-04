@@ -90,6 +90,9 @@ public class VoteService {
 
     public VoteDTO create(VoteDTO dto) {
         logger.info("Creating vote for member CPF {} on agendaId {}", dto.getMemberCpf(), dto.getAgendaId());
+
+        if( dto.getId() != null ) dto.setId(null);
+
         validateVoteDTO(dto);
 
         Member member = memberService.findByCpfEntity(dto.getMemberCpf());
