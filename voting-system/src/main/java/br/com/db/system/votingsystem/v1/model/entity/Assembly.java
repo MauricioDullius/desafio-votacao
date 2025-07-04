@@ -29,6 +29,6 @@ public class Assembly implements Serializable {
     @Column(nullable = false)
     private LocalDateTime end;
 
-    @OneToMany(mappedBy = "assembly", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "assembly", cascade = CascadeType.ALL)
     private List<Agenda> agendas;
 }
